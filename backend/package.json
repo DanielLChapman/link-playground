@@ -1,0 +1,20 @@
+{
+  "name": "link-playground-backend",
+  "version": "0.0.0",
+  "description": "keystone-graphql backend",
+  "main": "index.js",
+  "scripts": {
+    "dev": "keystone dev",
+    "test": "jest --watch"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@graphql-tools/schema": "^10.0.0",
+    "@keystone-6/auth": "^7.0.0",
+    "@keystone-6/core": "^5.3.1",
+    "@keystone-6/fields-document": "^8.0.0",
+    "typescript": "^5.1.3",
+    "uuid": "^9.0.0"
+  }
+}
