@@ -1,7 +1,6 @@
 import { list } from "@keystone-6/core";
 import { allowAll } from "@keystone-6/core/access";
 
-
 import {
     text,
     relationship,
@@ -15,16 +14,17 @@ import {
 import { mergeSchemas } from "@graphql-tools/schema";
 import type { GraphQLSchema } from "graphql";
 import { User } from "./types";
+import generateShortenedURL from "./mutations/generateShortenedURL";
 
 export const lists = {
     User: list({
         access: allowAll,
         fields: {
             username: text({
-                validation: {isRequired: true},
+                validation: { isRequired: true },
                 isIndexed: "unique",
             }),
-            password: password({validation: {isRequired: true}}),
+            password: password({ validation: { isRequired: true } }),
             email: text({
                 hooks: {
                     //@ts-ignore
@@ -41,11 +41,10 @@ export const lists = {
                         if (!email) {
                             return true;
                         } else {
-                            const existingUser: User[] = await context.db.User.findMany(
-                                {
+                            const existingUser: User[] =
+                                (await context.db.User.findMany({
                                     where: { email: { equals: email } },
-                                }
-                            ) as unknown as User[];
+                                })) as unknown as User[];
 
                             if (
                                 existingUser &&
@@ -58,18 +57,49 @@ export const lists = {
                     },
                 },
             }),
-
-        }
-    })
-}
+            links: relationship({
+                ref: "ShortenedLink.owner",
+                many: true,
+            }),
+        },
+    }),
+    ShortenedLink: list({
+        access: allowAll,
+        fields: {
+            originalURL: text({ 
+                validation: { isRequired: true } 
+            }),
+            shortenedURL: text({ 
+                validation: { isRequired: true },
+                isIndexed: 'unique',
+             }), 
+            owner: relationship({
+                ref: "User.links",
+                many: false,
+            }),
+            clicks: integer({
+                defaultValue: 0,
+            }),
+            createdAt: timestamp({
+                // this sets the timestamp to Date.now() when the user is first created
+                defaultValue: { kind: "now" },
+            }),
+        },
+    }),
+};
 
 export const extendGraphqlSchema = (schema: GraphQLSchema) =>
     mergeSchemas({
         schemas: [schema],
-        typeDefs: ``,
+        typeDefs: `
+            type Mutation {
+                generateShortenedURL(url: String!): ShortenedLink
+            }
+        `,
         resolvers: {
-            Mutation: {},
+            Mutation: {
+                generateShortenedURL: generateShortenedURL
+            },
             Query: {},
         },
-    }
-);
+    });

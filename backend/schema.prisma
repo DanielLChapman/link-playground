@@ -12,8 +12,21 @@ generator client {
 }
 
 model User {
-  id       String @id @default(cuid())
-  username String @unique @default("")
+  id       String          @id @default(cuid())
+  username String          @unique @default("")
   password String
-  email    String @default("")
+  email    String          @default("")
+  links    ShortenedLink[] @relation("ShortenedLink_owner")
+}
+
+model ShortenedLink {
+  id           String    @id @default(cuid())
+  originalURL  String    @default("")
+  shortenedURL String    @unique @default("")
+  owner        User?     @relation("ShortenedLink_owner", fields: [ownerId], references: [id])
+  ownerId      String?   @map("owner")
+  clicks       Int?      @default(0)
+  createdAt    DateTime? @default(now())
+
+  @@index([ownerId])
 }
