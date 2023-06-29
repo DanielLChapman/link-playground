@@ -6,13 +6,16 @@ type User {
   username: String
   password: PasswordState
   email: String
-  links(where: ShortenedLinkWhereInput! = {}, orderBy: [ShortenedLinkOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ShortenedLinkWhereUniqueInput): [ShortenedLink!]
+  links(where: ShortenedLinkWhereInput! = {}, orderBy: [ShortenedLinkOrderByInput!]! = [], take: Int, skip: Int! = 0): [ShortenedLink!]
   linksCount(where: ShortenedLinkWhereInput! = {}): Int
+  createdAt: DateTime
 }
 
 type PasswordState {
   isSet: Boolean!
 }
+
+scalar DateTime @specifiedBy(url: "https://datatracker.ietf.org/doc/html/rfc3339#section-5.6")
 
 input UserWhereUniqueInput {
   id: ID
@@ -27,6 +30,7 @@ input UserWhereInput {
   username: StringFilter
   email: StringFilter
   links: ShortenedLinkManyRelationFilter
+  createdAt: DateTimeNullableFilter
 }
 
 input IDFilter {
@@ -74,10 +78,22 @@ input ShortenedLinkManyRelationFilter {
   none: ShortenedLinkWhereInput
 }
 
+input DateTimeNullableFilter {
+  equals: DateTime
+  in: [DateTime!]
+  notIn: [DateTime!]
+  lt: DateTime
+  lte: DateTime
+  gt: DateTime
+  gte: DateTime
+  not: DateTimeNullableFilter
+}
+
 input UserOrderByInput {
   id: OrderDirection
   username: OrderDirection
   email: OrderDirection
+  createdAt: OrderDirection
 }
 
 enum OrderDirection {
@@ -90,6 +106,7 @@ input UserUpdateInput {
   password: String
   email: String
   links: ShortenedLinkRelateToManyForUpdateInput
+  createdAt: DateTime
 }
 
 input ShortenedLinkRelateToManyForUpdateInput {
@@ -109,6 +126,7 @@ input UserCreateInput {
   password: String
   email: String
   links: ShortenedLinkRelateToManyForCreateInput
+  createdAt: DateTime
 }
 
 input ShortenedLinkRelateToManyForCreateInput {
@@ -124,8 +142,6 @@ type ShortenedLink {
   clicks: Int
   createdAt: DateTime
 }
-
-scalar DateTime @specifiedBy(url: "https://datatracker.ietf.org/doc/html/rfc3339#section-5.6")
 
 input ShortenedLinkWhereUniqueInput {
   id: ID
@@ -153,17 +169,6 @@ input IntNullableFilter {
   gt: Int
   gte: Int
   not: IntNullableFilter
-}
-
-input DateTimeNullableFilter {
-  equals: DateTime
-  in: [DateTime!]
-  notIn: [DateTime!]
-  lt: DateTime
-  lte: DateTime
-  gt: DateTime
-  gte: DateTime
-  not: DateTimeNullableFilter
 }
 
 input ShortenedLinkOrderByInput {
@@ -247,10 +252,10 @@ input CreateInitialUserInput {
 }
 
 type Query {
-  users(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
+  users(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0): [User!]
   user(where: UserWhereUniqueInput!): User
   usersCount(where: UserWhereInput! = {}): Int
-  shortenedLinks(where: ShortenedLinkWhereInput! = {}, orderBy: [ShortenedLinkOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ShortenedLinkWhereUniqueInput): [ShortenedLink!]
+  shortenedLinks(where: ShortenedLinkWhereInput! = {}, orderBy: [ShortenedLinkOrderByInput!]! = [], take: Int, skip: Int! = 0): [ShortenedLink!]
   shortenedLink(where: ShortenedLinkWhereUniqueInput!): ShortenedLink
   shortenedLinksCount(where: ShortenedLinkWhereInput! = {}): Int
   keystone: KeystoneMeta!
@@ -295,7 +300,6 @@ type KeystoneAdminUIFieldMeta {
   description: String
   isOrderable: Boolean!
   isFilterable: Boolean!
-  isNonNull: [KeystoneAdminUIFieldMetaIsNonNull!]
   fieldMeta: JSON
   viewsIndex: Int!
   customViewsIndex: Int
@@ -303,12 +307,6 @@ type KeystoneAdminUIFieldMeta {
   listView: KeystoneAdminUIFieldMetaListView!
   itemView(id: ID): KeystoneAdminUIFieldMetaItemView
   search: QueryMode
-}
-
-enum KeystoneAdminUIFieldMetaIsNonNull {
-  read
-  create
-  update
 }
 
 type KeystoneAdminUIFieldMetaCreateView {

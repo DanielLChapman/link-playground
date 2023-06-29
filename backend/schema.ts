@@ -61,6 +61,10 @@ export const lists = {
                 ref: "ShortenedLink.owner",
                 many: true,
             }),
+            createdAt: timestamp({
+                // this sets the timestamp to Date.now() when the user is first created
+                defaultValue: { kind: "now" },
+            }),
         },
     }),
     ShortenedLink: list({

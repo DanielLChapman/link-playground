@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .data-container-table {
+        @apply p-4 space-y-2
+    }
+
+    .get-price-button {
+        @apply text-sm bg-delftBlue p-1 px-2 rounded-lg text-white
+    }
+
+}
+
+.dark #logo {
+    filter: brightness(0) saturate(100%) invert(97%) sepia(0%) saturate(5999%) hue-rotate(260deg) brightness(119%) contrast(88%);
+}

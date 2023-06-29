@@ -9,14 +9,16 @@ datasource sqlite {
 
 generator client {
   provider = "prisma-client-js"
+  output   = "node_modules/.prisma/client"
 }
 
 model User {
-  id       String          @id @default(cuid())
-  username String          @unique @default("")
-  password String
-  email    String          @default("")
-  links    ShortenedLink[] @relation("ShortenedLink_owner")
+  id        String          @id @default(cuid())
+  username  String          @unique @default("")
+  password  String
+  email     String          @default("")
+  links     ShortenedLink[] @relation("ShortenedLink_owner")
+  createdAt DateTime?       @default(now())
 }
 
 model ShortenedLink {

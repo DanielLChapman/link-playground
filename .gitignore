@@ -17,3 +17,7 @@ __generated__
 *.log
 
 .keystone/admin
+
+backendold/
+
+backendold/*
