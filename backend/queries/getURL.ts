@@ -34,7 +34,7 @@ async function getURL(root: any, { urlID, privatePass }: { urlID: string, privat
         }
     });
 
-    return linkData.originalURL;
+    return linkData
 }
 
 
