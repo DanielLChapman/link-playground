@@ -25,6 +25,8 @@ model ShortenedLink {
   id           String    @id @default(cuid())
   originalURL  String    @default("")
   shortenedURL String    @unique @default("")
+  isPrivate    Boolean   @default(false)
+  privatePass  String    @default("")
   owner        User?     @relation("ShortenedLink_owner", fields: [ownerId], references: [id])
   ownerId      String?   @map("owner")
   clicks       Int?      @default(0)

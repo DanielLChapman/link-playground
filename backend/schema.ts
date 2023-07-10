@@ -15,6 +15,7 @@ import { mergeSchemas } from "@graphql-tools/schema";
 import type { GraphQLSchema } from "graphql";
 import { User } from "./types";
 import generateShortenedURL from "./mutations/generateShortenedURL";
+import getURL from "./queries/getURL";
 
 export const lists = {
     User: list({
@@ -77,6 +78,10 @@ export const lists = {
                 validation: { isRequired: true },
                 isIndexed: 'unique',
              }), 
+            isPrivate: checkbox({
+                defaultValue: false,
+            }),
+            privatePass: text(),
             owner: relationship({
                 ref: "User.links",
                 many: false,
@@ -98,12 +103,17 @@ export const extendGraphqlSchema = (schema: GraphQLSchema) =>
         typeDefs: `
             type Mutation {
                 generateShortenedURL(url: String!): ShortenedLink
+            },
+            type Query {
+                getURL(urlID: String!, privatePass: String): ShortenedLink
             }
         `,
         resolvers: {
             Mutation: {
                 generateShortenedURL: generateShortenedURL
             },
-            Query: {},
+            Query: {
+                getURL: getURL
+            },
         },
     });

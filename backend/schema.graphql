@@ -138,6 +138,8 @@ type ShortenedLink {
   id: ID!
   originalURL: String
   shortenedURL: String
+  isPrivate: Boolean
+  privatePass: String
   owner: User
   clicks: Int
   createdAt: DateTime
@@ -155,9 +157,16 @@ input ShortenedLinkWhereInput {
   id: IDFilter
   originalURL: StringFilter
   shortenedURL: StringFilter
+  isPrivate: BooleanFilter
+  privatePass: StringFilter
   owner: UserWhereInput
   clicks: IntNullableFilter
   createdAt: DateTimeNullableFilter
+}
+
+input BooleanFilter {
+  equals: Boolean
+  not: BooleanFilter
 }
 
 input IntNullableFilter {
@@ -175,6 +184,8 @@ input ShortenedLinkOrderByInput {
   id: OrderDirection
   originalURL: OrderDirection
   shortenedURL: OrderDirection
+  isPrivate: OrderDirection
+  privatePass: OrderDirection
   clicks: OrderDirection
   createdAt: OrderDirection
 }
@@ -182,6 +193,8 @@ input ShortenedLinkOrderByInput {
 input ShortenedLinkUpdateInput {
   originalURL: String
   shortenedURL: String
+  isPrivate: Boolean
+  privatePass: String
   owner: UserRelateToOneForUpdateInput
   clicks: Int
   createdAt: DateTime
@@ -201,6 +214,8 @@ input ShortenedLinkUpdateArgs {
 input ShortenedLinkCreateInput {
   originalURL: String
   shortenedURL: String
+  isPrivate: Boolean
+  privatePass: String
   owner: UserRelateToOneForCreateInput
   clicks: Int
   createdAt: DateTime
@@ -260,6 +275,7 @@ type Query {
   shortenedLinksCount(where: ShortenedLinkWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
+  getURL(urlID: String!, privatePass: String): ShortenedLink
 }
 
 union AuthenticatedItem = User

@@ -13,3 +13,14 @@ export type User = {
   email?: string,
   createdAt: Date,
 }
+
+export type ShortenedLink = {
+  id: string,
+  originalURL: string,
+  shortenedURL: string,
+  isPrivate: boolean,
+  privatePass: string,
+  owner: User,
+  clicks: number,
+  createdAt: Date,
+}
