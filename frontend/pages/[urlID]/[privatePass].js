@@ -18,7 +18,8 @@ function ShortenedUrl(props) {
     const router = useRouter()
     const {data, error, loading} = useQuery(GET_SHORTENED_URL, {
         variables: {
-            shortURL: router.query.urlID
+            shortURL: router.query.urlID,
+            privatePass: router.query.privatePass,
         }
     });
 

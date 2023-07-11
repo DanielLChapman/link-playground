@@ -8,7 +8,6 @@ import { backendtype } from "./User";
 
 export type UserOnlyProps = {
     user: userType | null;
-
 };
 
 const Header: React.FC<UserOnlyProps> = ({ user }) => {
@@ -49,7 +48,6 @@ const Header: React.FC<UserOnlyProps> = ({ user }) => {
         });
     };*/
 
-
     /*
     useEffect(() => {
         if (user.darkMode && document.querySelectorAll(".dark").length === 0) {
@@ -65,12 +63,17 @@ const Header: React.FC<UserOnlyProps> = ({ user }) => {
     return (
         <>
             <nav className="container relative mx-auto p-6 bg-snow dark:bg-jet dark:text-snow">
-                {/*"flex flex-row justify-center space-x-20 my-6 md:justify-between"*/}
                 <div className="flex flex-col flex-wrap sm:flex-row items-center justify-between mx-auto">
                     <a href="/" className="z-30 flex items-center">
                         INSERT LOGO HERE
                     </a>
                 </div>
+                <div className="flex flex-col flex-wrap sm:flex-row items-center justify-between mx-auto">
+                    <a href="/" className="z-30 flex items-center">
+                        {user?.username}
+                    </a>
+                </div>
+                {/*"flex flex-row justify-center space-x-20 my-6 md:justify-between"*/}
             </nav>
         </>
     );

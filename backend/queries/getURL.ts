@@ -20,7 +20,7 @@ async function getURL(root: any, { urlID, privatePass }: { urlID: string, privat
     }
 
     if (linkData.isPrivate 
-        && !(sesh.itemId && linkData.ownerId === sesh.itemId) 
+        && !(sesh?.itemId && linkData.ownerId === sesh?.itemId) 
         && !(linkData.privatePass === privatePass && privatePass.length > 0)) {
         throw new Error("You don't have permission to view this link");
     }
