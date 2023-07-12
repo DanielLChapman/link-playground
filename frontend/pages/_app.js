@@ -1,6 +1,6 @@
 
 import Router from "next/router";
-import Page from "../src/components/Page";
+import Page from "../src/Components/Page";
 import {
     ApolloClient,
     InMemoryCache,

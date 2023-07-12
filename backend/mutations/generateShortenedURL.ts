@@ -31,7 +31,7 @@ const isValidURLWithRegExp = (url: string): boolean => {
     return !!pattern.test(url);
 }
 
-async function generateShortenedURL(root: any, { url }: { url: string }, context: Context) {
+async function generateShortenedURL(root: any, { url, isPrivate, privatePass }: { url: string, isPrivate: boolean, privatePass: string }, context: Context) {
     if (!isValidURLWithRegExp(url)) {
         throw new Error('Invalid URL');
     }
@@ -43,9 +43,11 @@ async function generateShortenedURL(root: any, { url }: { url: string }, context
         originalURL: url,
         shortenedURL,
         clicks: 0,
+        isPrivate,
+        privatePass,
     }
 
-    if (sesh.itemId) {
+    if (sesh?.itemId) {
         linkData.owner = {
             connect: { id: sesh.itemId },
         }

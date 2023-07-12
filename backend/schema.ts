@@ -102,7 +102,7 @@ export const extendGraphqlSchema = (schema: GraphQLSchema) =>
         schemas: [schema],
         typeDefs: `
             type Mutation {
-                generateShortenedURL(url: String!): ShortenedLink
+                generateShortenedURL(url: String!, isPrivate: Boolean, privatePass: String): ShortenedLink
             },
             type Query {
                 getURL(urlID: String!, privatePass: String): ShortenedLink

@@ -14,13 +14,20 @@ export default function useForm(initial: any = {}) {
     }, [initialValues]);
 
     function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-        let { value, name, type} = e.target;
+        let { value, name, type, checked} = e.target;
 
         
         if (type === 'number') {
             setInputs({
                 ...inputs,
                 [name]: +value,
+            });
+            return;
+        };
+        if (type === 'checkbox') {
+            setInputs({
+                ...inputs,
+                [name]: checked,
             });
             return;
         };
