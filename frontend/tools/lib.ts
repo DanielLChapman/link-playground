@@ -1,4 +1,8 @@
-
+export type SetShortenedUrlType = React.Dispatch<React.SetStateAction<{
+    shortenedURL: string;
+    privatePass: string;
+    isPrivate: boolean;
+}>>;
 
 export type shortenedLinks = {
     id: string,
