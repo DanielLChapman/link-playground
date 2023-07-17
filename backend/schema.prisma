@@ -19,6 +19,10 @@ model User {
   email     String          @default("")
   links     ShortenedLink[] @relation("ShortenedLink_owner")
   createdAt DateTime?       @default(now())
+  role      Role?           @relation("User_role", fields: [roleId], references: [id])
+  roleId    String?         @map("role")
+
+  @@index([roleId])
 }
 
 model ShortenedLink {
@@ -33,4 +37,17 @@ model ShortenedLink {
   createdAt    DateTime? @default(now())
 
   @@index([ownerId])
+}
+
+model Role {
+  id                 String  @id @default(cuid())
+  name               String  @default("")
+  canDeleteLink      Boolean @default(false)
+  canManageAllLinks  Boolean @default(false)
+  canSeeOtherPeople  Boolean @default(false)
+  canEditOtherPeople Boolean @default(false)
+  canManagePeople    Boolean @default(false)
+  canManageRoles     Boolean @default(false)
+  canUseAdminUI      Boolean @default(false)
+  assignedTo         User[]  @relation("User_role")
 }

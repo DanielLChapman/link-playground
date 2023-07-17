@@ -9,6 +9,7 @@ type User {
   links(where: ShortenedLinkWhereInput! = {}, orderBy: [ShortenedLinkOrderByInput!]! = [], take: Int, skip: Int! = 0): [ShortenedLink!]
   linksCount(where: ShortenedLinkWhereInput! = {}): Int
   createdAt: DateTime
+  role: Role
 }
 
 type PasswordState {
@@ -31,6 +32,7 @@ input UserWhereInput {
   email: StringFilter
   links: ShortenedLinkManyRelationFilter
   createdAt: DateTimeNullableFilter
+  role: RoleWhereInput
 }
 
 input IDFilter {
@@ -107,6 +109,7 @@ input UserUpdateInput {
   email: String
   links: ShortenedLinkRelateToManyForUpdateInput
   createdAt: DateTime
+  role: RoleRelateToOneForUpdateInput
 }
 
 input ShortenedLinkRelateToManyForUpdateInput {
@@ -114,6 +117,12 @@ input ShortenedLinkRelateToManyForUpdateInput {
   set: [ShortenedLinkWhereUniqueInput!]
   create: [ShortenedLinkCreateInput!]
   connect: [ShortenedLinkWhereUniqueInput!]
+}
+
+input RoleRelateToOneForUpdateInput {
+  create: RoleCreateInput
+  connect: RoleWhereUniqueInput
+  disconnect: Boolean
 }
 
 input UserUpdateArgs {
@@ -127,11 +136,17 @@ input UserCreateInput {
   email: String
   links: ShortenedLinkRelateToManyForCreateInput
   createdAt: DateTime
+  role: RoleRelateToOneForCreateInput
 }
 
 input ShortenedLinkRelateToManyForCreateInput {
   create: [ShortenedLinkCreateInput!]
   connect: [ShortenedLinkWhereUniqueInput!]
+}
+
+input RoleRelateToOneForCreateInput {
+  create: RoleCreateInput
+  connect: RoleWhereUniqueInput
 }
 
 type ShortenedLink {
@@ -226,6 +241,99 @@ input UserRelateToOneForCreateInput {
   connect: UserWhereUniqueInput
 }
 
+type Role {
+  id: ID!
+  name: String
+  canDeleteLink: Boolean
+  canManageAllLinks: Boolean
+  canSeeOtherPeople: Boolean
+  canEditOtherPeople: Boolean
+  canManagePeople: Boolean
+  canManageRoles: Boolean
+  canUseAdminUI: Boolean
+  assignedTo(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0): [User!]
+  assignedToCount(where: UserWhereInput! = {}): Int
+}
+
+input RoleWhereUniqueInput {
+  id: ID
+}
+
+input RoleWhereInput {
+  AND: [RoleWhereInput!]
+  OR: [RoleWhereInput!]
+  NOT: [RoleWhereInput!]
+  id: IDFilter
+  name: StringFilter
+  canDeleteLink: BooleanFilter
+  canManageAllLinks: BooleanFilter
+  canSeeOtherPeople: BooleanFilter
+  canEditOtherPeople: BooleanFilter
+  canManagePeople: BooleanFilter
+  canManageRoles: BooleanFilter
+  canUseAdminUI: BooleanFilter
+  assignedTo: UserManyRelationFilter
+}
+
+input UserManyRelationFilter {
+  every: UserWhereInput
+  some: UserWhereInput
+  none: UserWhereInput
+}
+
+input RoleOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+  canDeleteLink: OrderDirection
+  canManageAllLinks: OrderDirection
+  canSeeOtherPeople: OrderDirection
+  canEditOtherPeople: OrderDirection
+  canManagePeople: OrderDirection
+  canManageRoles: OrderDirection
+  canUseAdminUI: OrderDirection
+}
+
+input RoleUpdateInput {
+  name: String
+  canDeleteLink: Boolean
+  canManageAllLinks: Boolean
+  canSeeOtherPeople: Boolean
+  canEditOtherPeople: Boolean
+  canManagePeople: Boolean
+  canManageRoles: Boolean
+  canUseAdminUI: Boolean
+  assignedTo: UserRelateToManyForUpdateInput
+}
+
+input UserRelateToManyForUpdateInput {
+  disconnect: [UserWhereUniqueInput!]
+  set: [UserWhereUniqueInput!]
+  create: [UserCreateInput!]
+  connect: [UserWhereUniqueInput!]
+}
+
+input RoleUpdateArgs {
+  where: RoleWhereUniqueInput!
+  data: RoleUpdateInput!
+}
+
+input RoleCreateInput {
+  name: String
+  canDeleteLink: Boolean
+  canManageAllLinks: Boolean
+  canSeeOtherPeople: Boolean
+  canEditOtherPeople: Boolean
+  canManagePeople: Boolean
+  canManageRoles: Boolean
+  canUseAdminUI: Boolean
+  assignedTo: UserRelateToManyForCreateInput
+}
+
+input UserRelateToManyForCreateInput {
+  create: [UserCreateInput!]
+  connect: [UserWhereUniqueInput!]
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -244,6 +352,12 @@ type Mutation {
   updateShortenedLinks(data: [ShortenedLinkUpdateArgs!]!): [ShortenedLink]
   deleteShortenedLink(where: ShortenedLinkWhereUniqueInput!): ShortenedLink
   deleteShortenedLinks(where: [ShortenedLinkWhereUniqueInput!]!): [ShortenedLink]
+  createRole(data: RoleCreateInput!): Role
+  createRoles(data: [RoleCreateInput!]!): [Role]
+  updateRole(where: RoleWhereUniqueInput!, data: RoleUpdateInput!): Role
+  updateRoles(data: [RoleUpdateArgs!]!): [Role]
+  deleteRole(where: RoleWhereUniqueInput!): Role
+  deleteRoles(where: [RoleWhereUniqueInput!]!): [Role]
   endSession: Boolean!
   authenticateUserWithPassword(username: String!, password: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
@@ -273,6 +387,9 @@ type Query {
   shortenedLinks(where: ShortenedLinkWhereInput! = {}, orderBy: [ShortenedLinkOrderByInput!]! = [], take: Int, skip: Int! = 0): [ShortenedLink!]
   shortenedLink(where: ShortenedLinkWhereUniqueInput!): ShortenedLink
   shortenedLinksCount(where: ShortenedLinkWhereInput! = {}): Int
+  roles(where: RoleWhereInput! = {}, orderBy: [RoleOrderByInput!]! = [], take: Int, skip: Int! = 0): [Role!]
+  role(where: RoleWhereUniqueInput!): Role
+  rolesCount(where: RoleWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
   getURL(urlID: String!, privatePass: String): ShortenedLink
