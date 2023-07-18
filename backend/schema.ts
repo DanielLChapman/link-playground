@@ -17,6 +17,8 @@ import { User } from "./types";
 import generateShortenedURL from "./mutations/generateShortenedURL";
 import getURL from "./queries/getURL";
 import { isSignedIn, permissions, rules } from "./access";
+import deleteSelectLinks from "./mutations/deleteSelectLinks";
+import deleteAllLinks from "./mutations/deleteAllLinks";
 
 export const lists = {
     User: list({
@@ -91,6 +93,20 @@ export const lists = {
                 },
             }),
         },
+        hooks: {
+            validateDelete: async ({ context, item, addValidationError }) => {
+                const links = await context.lists.ShortenedLink.findMany({
+                    where: { owner: { id: item.id } },
+                    resolveFields: "id",
+                });
+
+                for (const link of links) {
+                    await context.lists.ShortenedLink.deleteOne({
+                        id: link.id,
+                    });
+                }
+            },
+        },
     }),
     ShortenedLink: list({
         access: {
@@ -160,7 +176,7 @@ export const lists = {
             name: text({ validation: { isRequired: true } }),
 
             canDeleteLink: checkbox({ defaultValue: false }),
-          
+
             canManageAllLinks: checkbox({ defaultValue: false }),
             /* See Other Users means:
              - list all users in the database (users can always see themselves) */
@@ -196,14 +212,23 @@ export const extendGraphqlSchema = (schema: GraphQLSchema) =>
         typeDefs: `
             type Mutation {
                 generateShortenedURL(url: String!, isPrivate: Boolean, privatePass: String): ShortenedLink
+                deleteSelectLinks(shortenedLinks: [String!]!): DeleteLinkResult!
+                deleteAllLinks: DeleteLinkResult!
             },
             type Query {
                 getURL(urlID: String!, privatePass: String): ShortenedLink
+            },
+            type DeleteLinkResult {
+                success: Boolean!
+                message: String!
+                failedDeletions: [ID!]
             }
         `,
         resolvers: {
             Mutation: {
                 generateShortenedURL: generateShortenedURL,
+                deleteSelectLinks: deleteSelectLinks,
+                deleteAllLinks: deleteAllLinks
             },
             Query: {
                 getURL: getURL,

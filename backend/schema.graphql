@@ -362,6 +362,8 @@ type Mutation {
   authenticateUserWithPassword(username: String!, password: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
   generateShortenedURL(url: String!, isPrivate: Boolean, privatePass: String): ShortenedLink
+  deleteSelectLinks(shortenedLinks: [String!]!): DeleteLinkResult!
+  deleteAllLinks: DeleteLinkResult!
 }
 
 union UserAuthenticationWithPasswordResult = UserAuthenticationWithPasswordSuccess | UserAuthenticationWithPasswordFailure
@@ -495,4 +497,10 @@ type KeystoneAdminUISort {
 enum KeystoneAdminUISortDirection {
   ASC
   DESC
+}
+
+type DeleteLinkResult {
+  success: Boolean!
+  message: String!
+  failedDeletions: [ID!]
 }

@@ -16,6 +16,9 @@ import { withAuth, session } from './auth';
 import 'dotenv/config';
 
 
+import {deleteOldLinks } from './cronJob';
+
+
 export default withAuth(
   config({
     db: {
