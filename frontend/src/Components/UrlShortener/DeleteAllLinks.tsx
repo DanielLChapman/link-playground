@@ -2,27 +2,48 @@ import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
 import React from 'react';
 import { CURRENT_USER_QUERY } from '../User';
-
-export const DELETE_SINGLE_LINK = gql`
-    mutation DELETE_SINGLE_LINK($linkId: String!) {
-        deleteShortenedLink(where: {
-            id: $linkId
-        }) {
-            id
+export const DELETE_ALL_LINKS_FROM_USER = gql`
+    mutation {
+        deleteAllLinks {
+            success
+            message
+            failedDeletions
         }
     }
-`
+`;
 
+export const DELETE_SOME_LINKS_FROM_USER = gql`
+    mutation DELETE_SOME_LINKS_FROM_USER($shortenedLinks: [String!]!) {
+        deleteSelectLinks(shortenedLinks: $shortenedLinks) {
+            success
+            message
+            failedDeletions
+        }
+    }
+`;
 
-export const useDeleteLink = () => {
-    const [deleteLinkMutation, { data, error, loading }] = useMutation(DELETE_SINGLE_LINK, {
+export const useDeleteAllLinks = () => {
+    const [deleteLinkMutation, { data, error, loading }] = useMutation(DELETE_ALL_LINKS_FROM_USER, {
       refetchQueries: [CURRENT_USER_QUERY]
     });
   
-    const deleteLink = async (id) => {
-      const res = await deleteLinkMutation({ variables: { id } });
+    const deleteAllLinks = async () => {
+      const res = await deleteLinkMutation();
       return res;
-    }
+    };
   
-    return { deleteLink, data, error, loading };
-}
+    return { deleteAllLinks, data, error, loading };
+};
+
+export const useDeleteSomeLinks = () => {
+    const [deleteLinkMutation, { data, error, loading }] = useMutation(DELETE_SOME_LINKS_FROM_USER, {
+      refetchQueries: [CURRENT_USER_QUERY]
+    });
+  
+    const deleteSomeLinks = async (ids: string[]) => {
+      const res = await deleteLinkMutation({ variables: { shortenedLinks: ids } });
+      return res;
+    };
+  
+    return { deleteSomeLinks, data, error, loading };
+};
