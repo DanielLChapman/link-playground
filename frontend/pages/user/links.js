@@ -1,9 +1,10 @@
 import React from 'react';
+import LinkHandling from '../../src/Components/UserHandling/LinkHandling'
 
 function links(props) {
     return (
         <div>
-            My Links
+            <LinkHandling />
         </div>
     );
 }

@@ -4,8 +4,9 @@ import gql from "graphql-tag";
 import { useMutation } from "@apollo/client";
 import useForm from "../../../tools/useForm";
 import { isValidURL } from "../../../tools/urlChecking";
-import { SetShortenedUrlType } from "../../../tools/lib";
+import { SetShortenedUrlType, shortenedLinks } from "../../../tools/lib";
 import ErrorMessaging from "../Tools/ErrorMessaging";
+import { GET_SHORTENED_LINKS } from "../LinksHandling/LinkTable";
 
 export const CREATE_LINK = gql`
     mutation CreateShortenedLink(
@@ -19,7 +20,12 @@ export const CREATE_LINK = gql`
             privatePass: $privatePass
         ) {
             id
+            originalURL
             shortenedURL
+            isPrivate
+            privatePass
+            clicks
+            createdAt
         }
     }
 `;
@@ -28,8 +34,43 @@ type MyComponentProps = {
     setShortenedUrl: SetShortenedUrlType;
 };
 
-const UrlShortenerInput: React.FC<UserOnlyProps & MyComponentProps > = ({ user,setShortenedUrl }) => {
-    const [createLink, { data, error, loading }] = useMutation(CREATE_LINK);
+type LinkQueryData = {
+    shortenedLinks: shortenedLinks[];
+};
+
+const UrlShortenerInput: React.FC<UserOnlyProps & MyComponentProps> = ({
+    user,
+    setShortenedUrl,
+}) => {
+    const [createLink, { data, error, loading }] = useMutation(CREATE_LINK, {
+        update(cache, { data: { createLink } }) {
+            if (user) {
+                const data = cache.readQuery<LinkQueryData>({
+                    query: GET_SHORTENED_LINKS,
+                    variables: {
+                        userID: user.id,
+                        limit: 10,
+                        offset: 0,
+                    },
+                });
+
+                const newLink = { ...createLink, __typename: "ShortenedLink" };
+
+                cache.writeQuery({
+                    query: GET_SHORTENED_LINKS,
+                    variables: {
+                        userID: user.id,
+                        limit: 10,
+                        offset: 0,
+                    },
+                    data: {
+                        shortenedLinks: [newLink, ...data.shortenedLinks],
+                    },
+                });
+            }
+        },
+    });
+
     // Set an initial state for error message.
     const [errorMessage, setErrorMessage] = useState(null);
 
@@ -58,7 +99,7 @@ const UrlShortenerInput: React.FC<UserOnlyProps & MyComponentProps > = ({ user,s
                 shortenedURL: res.data.generateShortenedURL.shortenedURL,
                 privatePass: inputs.privatePass,
                 isPrivate: inputs.isPrivate,
-            })
+            });
             resetForm();
         }
 
@@ -75,7 +116,10 @@ const UrlShortenerInput: React.FC<UserOnlyProps & MyComponentProps > = ({ user,s
             }}
         >
             {errorMessage && (
-                <ErrorMessaging errorMessage={errorMessage} setErrorMessage={setErrorMessage} />
+                <ErrorMessaging
+                    errorMessage={errorMessage}
+                    setErrorMessage={setErrorMessage}
+                />
             )}
 
             <fieldset disabled={loading} aria-busy={loading}>

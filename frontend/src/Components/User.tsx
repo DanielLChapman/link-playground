@@ -1,7 +1,7 @@
-import { user } from "@/tools/lib";
 import { useQuery } from "@apollo/client";
 import gql from "graphql-tag";
 import React, { useCallback, useEffect, useState } from "react";
+import { user } from "../../tools/lib";
 
 export type backendtype = {
     data: user;
@@ -16,7 +16,12 @@ export const CURRENT_USER_QUERY = gql`
                 email
                 links {
                     id
-                    
+                    originalURL
+                    shortenedURL
+                    isPrivate
+                    privatePass
+                    clicks
+                    createdAt
                 }
                 createdAt
 
