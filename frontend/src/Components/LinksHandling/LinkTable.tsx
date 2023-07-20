@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { UserOnlyProps } from "../Header";
 import gql from "graphql-tag";
-import { useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { shortenedLinks } from "../../../tools/lib";
+import PrivatePassInput from "./PrivatePassInput";
 
 export const GET_SHORTENED_LINKS = gql`
     query GET_SHORTENED_LINKS($userID: ID!, $limit: Int!, $offset: Int!) {
@@ -19,6 +20,19 @@ export const GET_SHORTENED_LINKS = gql`
             privatePass
             clicks
             createdAt
+        }
+    }
+`;
+
+export const UPDATE_LINK = gql`
+    mutation UpdateLink($id: ID!, $isPrivate: Boolean, $privatePass: String) {
+        updateShortenedLink(
+            where: { id: $id }
+            data: { isPrivate: $isPrivate, privatePass: $privatePass }
+        ) {
+            id
+            isPrivate
+            privatePass
         }
     }
 `;
@@ -61,12 +75,14 @@ const LinkTable: React.FC<UserOnlyProps> = ({ user }) => {
         return url;
     };
 
-    const handleCopy = async ( shortened, isPrivate, privatePass ) => {
+    const handleCopy = async (shortened, isPrivate, privatePass) => {
         await navigator.clipboard.writeText(
             getUrl(shortened, isPrivate, privatePass)
         );
         alert("Copied To Clipboard");
     };
+
+    const [updateLinkPrivacy] = useMutation(UPDATE_LINK);
 
     return (
         <div className="flex flex-col">
@@ -87,6 +103,12 @@ const LinkTable: React.FC<UserOnlyProps> = ({ user }) => {
                                     </th>
                                     <th scope="col" className="px-6 py-4">
                                         Delete
+                                    </th>
+                                    <th scope="col" className="px-6 py-4">
+                                        Private
+                                    </th>
+                                    <th scope="col" className="px-6 py-4">
+                                        Private Password
                                     </th>
                                 </tr>
                             </thead>
@@ -121,6 +143,30 @@ const LinkTable: React.FC<UserOnlyProps> = ({ user }) => {
                                         </td>
                                         <td className="whitespace-nowrap px-6 py-4">
                                             X
+                                        </td>
+                                        <td className="whitespace-nowrap px-6 py-4">
+                                            <input
+                                                type="checkbox"
+                                                checked={x.isPrivate}
+                                                onChange={() =>
+                                                    updateLinkPrivacy({
+                                                        variables: {
+                                                            id: x.id,
+                                                            isPrivate:
+                                                                !x.isPrivate,
+                                                        },
+                                                    })
+                                                }
+                                            />
+                                        </td>
+                                        <td>
+                                            {x.isPrivate && (
+                                                <PrivatePassInput
+                                                    initialPass={x.privatePass}
+                                                    id={x.id}
+                                                    
+                                                />
+                                            )}
                                         </td>
                                     </tr>
                                 ))}
