@@ -1,12 +1,40 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 type SuccessMessagingType = {
     message: string
     onClose: () => void;
-    children: any
+    children: any;
+    timeout?: number //miliseconds
 };
 
-const SuccessMessaging: React.FC<SuccessMessagingType> = ({ message, onClose, children }) => {
+const SuccessMessaging: React.FC<SuccessMessagingType> = ({ message, onClose, children, timeout }) => {
+    const [isVisible, setIsVisible] = useState(!!message);
+
+    useEffect(() => {
+        let timer;
+        // If a timeout is defined, hide the message after the timeout
+        if (timeout && isVisible) {
+            timer = setTimeout(() => {
+                setIsVisible(false);
+                onClose();
+            }, timeout);
+        }
+
+        // If the message changes, make the message visible
+        if (message) {
+            setIsVisible(true);
+        }
+
+        // Clear the timeout when the component unmounts
+        return () => {
+            clearTimeout(timer);
+        };
+    }, [message, timeout, isVisible, onClose]);
+
+    if (!isVisible) {
+        return null;
+    }
+
     return (
         <div
             className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative"

@@ -35,7 +35,7 @@ const UrlShortenerView: React.FC<UserOnlyProps> = ({ user }) => {
 
     return (
         <div>
-            {shortenedURL.shortenedURL !== "" && (
+            {shortenedURL?.shortenedURL !== "" && (
                 <SuccessMessaging message="Click The Link To Copy!" onClose={() => resetShorteendURL()}>
                     <span
                         className="block sm:inline pl-1 cursor-pointer"

@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { UserOnlyProps } from "../Header";
 import gql from "graphql-tag";
 import { useMutation, useQuery } from "@apollo/client";
 import { shortenedLinks } from "../../../tools/lib";
 import PrivatePassInput from "./PrivatePassInput";
+import { useDeleteLink } from "../UrlShortener/DeleteSingleLink";
+import SuccessMessaging from "../Tools/SuccessMessaging";
 
 export const GET_SHORTENED_LINKS = gql`
     query GET_SHORTENED_LINKS($userID: ID!, $limit: Int!, $offset: Int!) {
@@ -49,6 +51,7 @@ const LinkTable: React.FC<UserOnlyProps> = ({ user }) => {
 
     const [linkPage, setLinkPage] = useState(1);
     const [linkItemsPerPage, setLinkItemsPerPage] = useState(10);
+    const [showSuccess, setShowSuccess] = useState(false);
 
     const { data, error, loading } = useQuery(GET_SHORTENED_LINKS, {
         variables: {
@@ -84,8 +87,29 @@ const LinkTable: React.FC<UserOnlyProps> = ({ user }) => {
 
     const [updateLinkPrivacy] = useMutation(UPDATE_LINK);
 
+    const {
+        deleteLink,
+        data: deletedata,
+        error: deleteerror,
+        loading: deleteloading,
+    } = useDeleteLink();
+
+    useEffect(() => {
+        if (deletedata) {
+            setShowSuccess(true);
+            console.log(deletedata)
+        } 
+    }, [deletedata]);
+
     return (
         <div className="flex flex-col">
+            {showSuccess && (
+                <SuccessMessaging message="Successfully Deleted!" onClose={() => {
+                    setShowSuccess(false);
+                }} timeout={10 * 1000}>
+                    
+                </SuccessMessaging>
+            )}
             <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
                 <div className="inline-block min-w-full py-2 sm:px-6 lg:px-8">
                     <div className="overflow-hidden overflow-y-auto max-h-[400px]">
@@ -141,8 +165,15 @@ const LinkTable: React.FC<UserOnlyProps> = ({ user }) => {
                                         <td className="whitespace-nowrap px-6 py-4">
                                             {x.clicks}
                                         </td>
-                                        <td className="whitespace-nowrap px-6 py-4">
-                                            X
+                                        <td className="whitespace-nowrap px-6 py-4 cursor-pointer">
+                                            <span
+                                                className=""
+                                                onClick={() => {
+                                                    deleteLink(x.id);
+                                                }}
+                                            >
+                                                X
+                                            </span>
                                         </td>
                                         <td className="whitespace-nowrap px-6 py-4">
                                             <input
@@ -164,7 +195,6 @@ const LinkTable: React.FC<UserOnlyProps> = ({ user }) => {
                                                 <PrivatePassInput
                                                     initialPass={x.privatePass}
                                                     id={x.id}
-                                                    
                                                 />
                                             )}
                                         </td>

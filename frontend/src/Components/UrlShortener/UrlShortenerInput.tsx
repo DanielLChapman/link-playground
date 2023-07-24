@@ -42,7 +42,7 @@ const UrlShortenerInput: React.FC<UserOnlyProps & MyComponentProps> = ({
     user,
     setShortenedUrl,
 }) => {
-    const [createLink, { data, error, loading }] = useMutation(CREATE_LINK, {
+    const [createLink, { error, loading }] = useMutation(CREATE_LINK, {
         update(cache, { data: { createLink } }) {
             if (user) {
                 const data = cache.readQuery<LinkQueryData>({
@@ -53,6 +53,12 @@ const UrlShortenerInput: React.FC<UserOnlyProps & MyComponentProps> = ({
                         offset: 0,
                     },
                 });
+
+                if (!data) {
+                    return;
+                }
+
+                
 
                 const newLink = { ...createLink, __typename: "ShortenedLink" };
 
@@ -82,6 +88,7 @@ const UrlShortenerInput: React.FC<UserOnlyProps & MyComponentProps> = ({
 
     const handleCreateLinks = async () => {
         setErrorMessage(null);
+
         if (!isValidURL(inputs.url)) {
             setErrorMessage("Invalid URL");
             return;
@@ -93,7 +100,6 @@ const UrlShortenerInput: React.FC<UserOnlyProps & MyComponentProps> = ({
                 privatePass: inputs.privatePass,
             },
         });
-
         if (res.data.generateShortenedURL.shortenedURL) {
             setShortenedUrl({
                 shortenedURL: res.data.generateShortenedURL.shortenedURL,
