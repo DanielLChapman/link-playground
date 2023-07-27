@@ -212,7 +212,7 @@ export const extendGraphqlSchema = (schema: GraphQLSchema) =>
         typeDefs: `
             type Mutation {
                 generateShortenedURL(url: String!, isPrivate: Boolean, privatePass: String): ShortenedLink
-                deleteSelectLinks(shortenedLinks: [String!]!): DeleteLinkResult!
+                deleteSelectLinks(shortenedURLs: [String!]!): DeleteLinkResult!
                 deleteAllLinks: DeleteLinkResult!
             },
             type Query {

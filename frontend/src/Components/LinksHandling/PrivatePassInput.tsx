@@ -1,6 +1,6 @@
 import { useMutation } from '@apollo/client';
 import React, { useState } from 'react';
-import { UPDATE_LINK } from './LinkTable';
+import { UPDATE_LINK } from '../Tools/Queries';
 
 const PrivatePassInput:React.FC<{initialPass: string, id:string, }> = ({initialPass, id}) => {
 

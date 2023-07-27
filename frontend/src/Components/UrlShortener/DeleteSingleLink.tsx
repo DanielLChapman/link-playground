@@ -1,18 +1,8 @@
 import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
 import React from 'react';
-import { CURRENT_USER_QUERY } from '../User';
-import { GET_SHORTENED_LINKS } from '../LinksHandling/LinkTable';
+import { DELETE_SINGLE_LINK } from '../Tools/Queries';
 
-export const DELETE_SINGLE_LINK = gql`
-    mutation DELETE_SINGLE_LINK($linkId: ID!) {
-        deleteShortenedLink(where: {
-            id: $linkId
-        }) {
-            id
-        }
-    }
-`
 
 
 export const useDeleteLink = () => {

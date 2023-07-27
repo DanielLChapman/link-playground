@@ -6,29 +6,7 @@ import useForm from "../../../tools/useForm";
 import { isValidURL } from "../../../tools/urlChecking";
 import { SetShortenedUrlType, shortenedLinks } from "../../../tools/lib";
 import ErrorMessaging from "../Tools/ErrorMessaging";
-import { GET_SHORTENED_LINKS } from "../LinksHandling/LinkTable";
-
-export const CREATE_LINK = gql`
-    mutation CreateShortenedLink(
-        $originalURL: String!
-        $isPrivate: Boolean
-        $privatePass: String
-    ) {
-        generateShortenedURL(
-            url: $originalURL
-            isPrivate: $isPrivate
-            privatePass: $privatePass
-        ) {
-            id
-            originalURL
-            shortenedURL
-            isPrivate
-            privatePass
-            clicks
-            createdAt
-        }
-    }
-`;
+import { CREATE_LINK, GET_SHORTENED_LINKS } from "../Tools/Queries";
 
 type MyComponentProps = {
     setShortenedUrl: SetShortenedUrlType;
@@ -57,9 +35,7 @@ const UrlShortenerInput: React.FC<UserOnlyProps & MyComponentProps> = ({
                 if (!data) {
                     return;
                 }
-
                 
-
                 const newLink = { ...createLink, __typename: "ShortenedLink" };
 
                 cache.writeQuery({

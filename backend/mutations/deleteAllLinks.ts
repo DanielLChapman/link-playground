@@ -13,21 +13,23 @@ async function deleteAllLinks(
       throw new Error("Invalid User Entry");
     }
   
-    const links = await context.lists.ShortenedLink.findMany({
+    const links = await context.db.ShortenedLink.findMany({
       where: {
-        owner: { id: sesh.itemId },
+        owner: { id: { equals: sesh.itemId } },
       },
-      resolveFields: "id",
+      resolveFields: "id shortenedURL",
     });
+
+    console.log(links)
   
     const failedDeletions: string[] = [];
   
     for (const link of links) {
       try {
-        await context.lists.ShortenedLink.deleteOne({ id: link.id });
+        await context.db.ShortenedLink.deleteOne({ where: {id: link.id} });
       } catch (error) {
         // If there was an error during deletion, add the id to the failedDeletions array
-        failedDeletions.push(link.id);
+        failedDeletions.push(link.shortenedURL);
       }
     }
   

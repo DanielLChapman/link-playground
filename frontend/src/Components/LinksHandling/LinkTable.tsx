@@ -6,38 +6,9 @@ import { shortenedLinks } from "../../../tools/lib";
 import PrivatePassInput from "./PrivatePassInput";
 import { useDeleteLink } from "../UrlShortener/DeleteSingleLink";
 import SuccessMessaging from "../Tools/SuccessMessaging";
-
-export const GET_SHORTENED_LINKS = gql`
-    query GET_SHORTENED_LINKS($userID: ID!, $limit: Int!, $offset: Int!) {
-        shortenedLinks(
-            where: { owner: { id: { equals: $userID } } }
-            skip: $offset
-            take: $limit
-            orderBy: { createdAt: desc }
-        ) {
-            id
-            originalURL
-            shortenedURL
-            isPrivate
-            privatePass
-            clicks
-            createdAt
-        }
-    }
-`;
-
-export const UPDATE_LINK = gql`
-    mutation UpdateLink($id: ID!, $isPrivate: Boolean, $privatePass: String) {
-        updateShortenedLink(
-            where: { id: $id }
-            data: { isPrivate: $isPrivate, privatePass: $privatePass }
-        ) {
-            id
-            isPrivate
-            privatePass
-        }
-    }
-`;
+import { useDeleteSomeLinks } from "../UrlShortener/DeleteAllLinks";
+import { handleCopy } from "../Tools/HandleCopy";
+import { GET_SHORTENED_LINKS, UPDATE_LINK } from "../Tools/Queries";
 
 const LinkTable: React.FC<UserOnlyProps> = ({ user }) => {
     if (!user) {
@@ -52,6 +23,7 @@ const LinkTable: React.FC<UserOnlyProps> = ({ user }) => {
     const [linkPage, setLinkPage] = useState(1);
     const [linkItemsPerPage, setLinkItemsPerPage] = useState(10);
     const [showSuccess, setShowSuccess] = useState(false);
+    const [selectedIds, setSelectedIds] = useState([]);
 
     const { data, error, loading } = useQuery(GET_SHORTENED_LINKS, {
         variables: {
@@ -68,23 +40,6 @@ const LinkTable: React.FC<UserOnlyProps> = ({ user }) => {
         links = data.shortenedLinks;
     }
 
-    const baseURL = typeof window !== "undefined" ? window.location.origin : "";
-
-    const getUrl = (shortened, isPrivate, privatePass) => {
-        let url = `${baseURL}/${shortened}`;
-        if (isPrivate && privatePass) {
-            url += `/${privatePass}`;
-        }
-        return url;
-    };
-
-    const handleCopy = async (shortened, isPrivate, privatePass) => {
-        await navigator.clipboard.writeText(
-            getUrl(shortened, isPrivate, privatePass)
-        );
-        alert("Copied To Clipboard");
-    };
-
     const [updateLinkPrivacy] = useMutation(UPDATE_LINK);
 
     const {
@@ -94,20 +49,62 @@ const LinkTable: React.FC<UserOnlyProps> = ({ user }) => {
         loading: deleteloading,
     } = useDeleteLink();
 
+    const {
+        deleteSomeLinks,
+        data: deletesomedata,
+        error: detelesomeerror,
+        loading: deletesomeloading,
+    } = useDeleteSomeLinks();
+
     useEffect(() => {
-        if (deletedata) {
+        if (deletedata ) {
             setShowSuccess(true);
-            console.log(deletedata)
-        } 
+        }
     }, [deletedata]);
+
+    useEffect(() => {
+        if (deletesomedata) {
+            let {failedDeletions, message, success } = deletesomedata.deleteSelectLinks;
+            if (failedDeletions) {
+                alert('Some Failed To Delete. Please try them individually or contact an admin!');
+                setSelectedIds(failedDeletions);
+            }
+            if (success) {
+                setShowSuccess(true);
+                setSelectedIds([]);
+            }
+        }
+    }, [deletesomedata])
+
+
+    const handleCheck = (id, isChecked) => {
+        if (isChecked) {
+          setSelectedIds(prev => [...prev, id]);
+        } else {
+          setSelectedIds(prev => prev.filter(item => item !== id));
+        }
+    };
+
+    const handleDeleteChecked = () => {
+        if (selectedIds.length === 0) {
+            alert("How'd you access this without anything checked?");
+            return;
+        }
+
+        deleteSomeLinks(selectedIds);
+    }
 
     return (
         <div className="flex flex-col">
             {showSuccess && (
-                <SuccessMessaging message="Successfully Deleted!" onClose={() => {
-                    setShowSuccess(false);
-                }} timeout={10 * 1000}>
-                    
+                <SuccessMessaging
+                    message="Successfully Deleted!"
+                    onClose={() => {
+                        setShowSuccess(false);
+                    }}
+                    timeout={10 * 1000}
+                >
+
                 </SuccessMessaging>
             )}
             <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -125,14 +122,18 @@ const LinkTable: React.FC<UserOnlyProps> = ({ user }) => {
                                     <th scope="col" className="px-6 py-4">
                                         Clicks
                                     </th>
-                                    <th scope="col" className="px-6 py-4">
-                                        Delete
-                                    </th>
+
                                     <th scope="col" className="px-6 py-4">
                                         Private
                                     </th>
                                     <th scope="col" className="px-6 py-4">
                                         Private Password
+                                    </th>
+                                    <th scope="col" className="px-6 py-4">
+                                        Delete
+                                    </th>
+                                    <th scope="col" className="px-6 py-4">
+                                        Check
                                     </th>
                                 </tr>
                             </thead>
@@ -165,16 +166,7 @@ const LinkTable: React.FC<UserOnlyProps> = ({ user }) => {
                                         <td className="whitespace-nowrap px-6 py-4">
                                             {x.clicks}
                                         </td>
-                                        <td className="whitespace-nowrap px-6 py-4 cursor-pointer">
-                                            <span
-                                                className=""
-                                                onClick={() => {
-                                                    deleteLink(x.id);
-                                                }}
-                                            >
-                                                X
-                                            </span>
-                                        </td>
+
                                         <td className="whitespace-nowrap px-6 py-4">
                                             <input
                                                 type="checkbox"
@@ -198,30 +190,70 @@ const LinkTable: React.FC<UserOnlyProps> = ({ user }) => {
                                                 />
                                             )}
                                         </td>
+                                        <td className="whitespace-nowrap px-6 py-4 cursor-pointer">
+                                            <span
+                                                className=""
+                                                onClick={() => {
+                                                    deleteLink(x.id);
+                                                }}
+                                            >
+                                                X
+                                            </span>
+                                        </td>
+                                        <td className="whitespace-nowrap px-6 py-4 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedIds.includes(
+                                                    x.shortenedURL
+                                                )}
+                                                onChange={(e) =>
+                                                    handleCheck(
+                                                        x.shortenedURL,
+                                                        e.target.checked
+                                                    )
+                                                }
+                                            />
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
+                                
                         </table>
-
-                        <div className="ml-4">
-                            <button
-                                aria-disabled={linkPage === 1}
-                                disabled={linkPage === 1}
-                                onClick={() => setLinkPage(linkPage - 1)}
-                                data-testid="link-pagination-prev"
-                                className="disabled:opacity-50 w-[100px] hover:scale-105 hover:ml-1 hover:bg-darkOrange disabled:hover:bg-delftBlue hover:shadow-md"
-                            >
-                                Previous
-                            </button>
-                            <button
-                                disabled={links.length < linkItemsPerPage}
-                                aria-disabled={links.length < linkItemsPerPage}
-                                onClick={() => setLinkPage(linkPage + 1)}
-                                data-testid="stock-pagination-next"
-                                className="disabled:opacity-50 w-[100px] hover:scale-105 hover:ml-1 hover:bg-darkOrange disabled:hover:bg-delftBlue hover:shadow-md"
-                            >
-                                Next
-                            </button>
+                        <div>
+                        <button
+                                    aria-disabled={linkPage === 1}
+                                    disabled={linkPage === 1}
+                                    onClick={() => setLinkPage(linkPage - 1)}
+                                    data-testid="link-pagination-prev"
+                                    className="disabled:opacity-50 w-[100px] hover:scale-105 hover:ml-1 hover:bg-darkOrange disabled:hover:bg-delftBlue hover:shadow-md"
+                                >
+                                    Previous
+                                </button>
+                                <button
+                                    disabled={links.length < linkItemsPerPage}
+                                    aria-disabled={
+                                        links.length < linkItemsPerPage
+                                    }
+                                    onClick={() => setLinkPage(linkPage + 1)}
+                                    data-testid="link-pagination-next"
+                                    className="disabled:opacity-50 w-[100px] hover:scale-105 hover:ml-1 hover:bg-darkOrange disabled:hover:bg-delftBlue hover:shadow-md"
+                                >
+                                    Next
+                                </button>
+                                <button
+                                    disabled={selectedIds.length === 0}
+                                    aria-disabled={
+                                        selectedIds.length === 0
+                                    }
+                                    onClick={() => {
+                                        handleDeleteChecked();
+                                    }}
+                                    data-testid="link-pagination-next"
+                                    className="float-right disabled:opacity-50 w-[150px] hover:scale-105 hover:ml-1 hover:bg-darkOrange disabled:hover:bg-delftBlue hover:shadow-md"
+                                >
+                                    Delete Checked
+                                </button>
+  
                         </div>
                     </div>
                 </div>
