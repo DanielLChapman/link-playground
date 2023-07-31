@@ -35,6 +35,7 @@ model ShortenedLink {
   ownerId      String?   @map("owner")
   clicks       Int?      @default(0)
   createdAt    DateTime? @default(now())
+  name         String    @default("")
 
   @@index([ownerId])
 }

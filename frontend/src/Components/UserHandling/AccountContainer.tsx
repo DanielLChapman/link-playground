@@ -5,6 +5,7 @@ import { SIGNIN_MUTATION } from "./SignIn";
 import { user } from "../../../tools/lib";
 import { CURRENT_USER_QUERY } from "../User";
 import DeleteButton from "./DeleteButton";
+import ValidatePassword from "./ValidatePassword";
 
 interface EditAccountInfoProps {
     user: user;
@@ -26,11 +27,7 @@ export const UPDATE_USER_MUTATION = gql`
     ) {
         updateUser(
             where: { id: $id }
-            data: {
-                password: $password
-                username: $username
-                email: $email
-            }
+            data: { password: $password, username: $username, email: $email }
         ) {
             id
             username
@@ -64,7 +61,6 @@ const AccountContainer: React.FC<EditAccountInfoProps> = ({ user }) => {
     ] = useMutation(UPDATE_USER_MUTATION);
 
     const handleUpdate = async (type: string) => {
-
         let variables: UserUpdateInput = { id: user?.id };
         switch (type) {
             case "username":
@@ -87,10 +83,7 @@ const AccountContainer: React.FC<EditAccountInfoProps> = ({ user }) => {
             refetchQueries: [{ query: CURRENT_USER_QUERY }],
         });
 
-
-
         if (res.data) {
-        
             alert("Success");
             if (type === "password") {
                 setFormValues({
@@ -119,6 +112,42 @@ const AccountContainer: React.FC<EditAccountInfoProps> = ({ user }) => {
         }
     };
 
+    // State to track if the password has been validated
+    const [isPasswordValidated, setIsPasswordValidated] = useState(false);
+
+    // State for the password input field
+    const [password, setPassword] = useState("");
+
+    // State to track if the sign-in prompt should be displayed
+    const [signInPrompt, setSignInPrompt] = useState(false);
+    // Function to validate the password
+    const validatePassword = async (event: React.FormEvent) => {
+        event.preventDefault();
+        if (!user) {
+            alert("You Must Be Signed In");
+            return;
+        }
+
+        // Call the signIn mutation with the entered password
+        let res = await newSignIn({
+            variables: {
+                username: user.username,
+                password: password,
+            },
+            refetchQueries: [{ query: CURRENT_USER_QUERY }],
+        });
+
+        // Check if the password is correct and update the state accordingly
+        if (
+            res.data.authenticateUserWithPassword.__typename ===
+            "UserAuthenticationWithPasswordSuccess"
+        ) {
+            setIsPasswordValidated(true);
+            setSignInPrompt(false);
+            setPassword("");
+        }
+    };
+
     return (
         <section className="account-page w-full max-w-[1500px] mx-auto py-8 px-4 sm:px-6 lg:px-8">
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -131,20 +160,51 @@ const AccountContainer: React.FC<EditAccountInfoProps> = ({ user }) => {
                     >
                         Edit Account Info
                     </button>
-                    {isEditAccountOpen && (
-                        <EditAccountInfo
-                            newSignIn={newSignIn}
-                            data={data}
-                            formValues={formValues}
-                            formErrors={formErrors}
-                            setFormValues={setFormValues}
-                            setFormErrors={setFormErrors}
-                            handleUpdate={handleUpdate}
-                            user={user}
-                        />
-                    )}
+                    {isEditAccountOpen ? (
+                        isPasswordValidated &&
+                        data?.authenticateUserWithPassword &&
+                        data?.authenticateUserWithPassword.item.username ===
+                            user.username ? (
+                            <EditAccountInfo
+                                formValues={formValues}
+                                formErrors={formErrors}
+                                setFormValues={setFormValues}
+                                handleUpdate={handleUpdate}
+                            />
+                        ) : (
+                            <ValidatePassword
+                                validatePassword={validatePassword}
+                                password={password}
+                                setPassword={setPassword}
+                                signInError={error}
+                            />
+                        )
+                    ) : null}
                 </div>
 
+                <div className="account-info md:col-span-2 xl:col-span-1 border border-gray-300 rounded-lg p-6 shadow-sm hover:shadow-lg transition-shadow duration-300">
+                    {isPasswordValidated &&
+                    data?.authenticateUserWithPassword &&
+                    data?.authenticateUserWithPassword.item.username ===
+                        user.username ? (
+                        <DeleteButton user={user} />
+                    ) : (
+                        <>
+                            <button
+                                className="text-lg cursor-normal font-semibold  w-full text-center text-red-600 hover:text-red-800 focus:outline-none"
+                            >
+                                Delete Account
+                            </button>
+
+                            <ValidatePassword
+                                validatePassword={validatePassword}
+                                password={password}
+                                setPassword={setPassword}
+                                signInError={error}
+                            />
+                        </>
+                    )}
+                </div>
 
                 {/* Edit Delete */}
                 <div className="account-info md:col-span-2 xl:col-span-1 border border-gray-300 rounded-lg p-6 shadow-sm hover:shadow-lg transition-shadow duration-300">

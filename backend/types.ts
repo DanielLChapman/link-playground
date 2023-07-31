@@ -22,5 +22,6 @@ export type ShortenedLink = {
   privatePass: string,
   owner: User,
   clicks: number,
+  name: string,
   createdAt: Date,
 }

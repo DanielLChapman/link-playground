@@ -95,14 +95,16 @@ export const lists = {
         },
         hooks: {
             validateDelete: async ({ context, item, addValidationError }) => {
-                const links = await context.lists.ShortenedLink.findMany({
+                const links = await context.db.ShortenedLink.findMany({
                     where: { owner: { id: item.id } },
-                    resolveFields: "id",
                 });
 
                 for (const link of links) {
-                    await context.lists.ShortenedLink.deleteOne({
-                        id: link.id,
+                    await context.db.ShortenedLink.deleteOne({
+                        where: {
+                            id: link.id,
+                        }
+                        
                     });
                 }
             },
@@ -142,6 +144,7 @@ export const lists = {
                 // this sets the timestamp to Date.now() when the user is first created
                 defaultValue: { kind: "now" },
             }),
+            name: text(),
         },
     }),
     Role: list({

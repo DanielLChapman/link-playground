@@ -9,6 +9,7 @@ import SuccessMessaging from "../Tools/SuccessMessaging";
 import { useDeleteSomeLinks } from "../UrlShortener/DeleteAllLinks";
 import { handleCopy } from "../Tools/HandleCopy";
 import { GET_SHORTENED_LINKS, UPDATE_LINK } from "../Tools/Queries";
+import NameInput from "./NameInput";
 
 const LinkTable: React.FC<UserOnlyProps> = ({ user }) => {
     if (!user) {
@@ -120,6 +121,9 @@ const LinkTable: React.FC<UserOnlyProps> = ({ user }) => {
                                         Shortened URL
                                     </th>
                                     <th scope="col" className="px-6 py-4">
+                                        Name
+                                    </th>
+                                    <th scope="col" className="px-6 py-4">
                                         Clicks
                                     </th>
 
@@ -162,6 +166,9 @@ const LinkTable: React.FC<UserOnlyProps> = ({ user }) => {
                                                 Click To
                                             </span>{" "}
                                             <span>Copy</span>
+                                        </td>
+                                        <td>
+                                            <NameInput name={x.name || ''} id={x.id} />
                                         </td>
                                         <td className="whitespace-nowrap px-6 py-4">
                                             {x.clicks}

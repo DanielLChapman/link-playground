@@ -1,13 +1,42 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 type ErrorMessagingType = {
     errorMessage: string,
     setErrorMessage:  React.Dispatch<React.SetStateAction<{
         string
     }>>;
+    timeout?: number,
 }
 
-const ErrorMessaging:React.FC<ErrorMessagingType> = ({errorMessage, setErrorMessage}) => {
+const ErrorMessaging:React.FC<ErrorMessagingType> = ({errorMessage, setErrorMessage, timeout}) => {
+
+    const [isVisible, setIsVisible] = useState(!!errorMessage);
+
+    useEffect(() => {
+        let timer;
+        // If a timeout is defined, hide the message after the timeout
+        if (timeout && isVisible) {
+            timer = setTimeout(() => {
+                setIsVisible(false);
+                setErrorMessage(null);
+            }, timeout);
+        }
+
+        // If the message changes, make the message visible
+        if (errorMessage) {
+            setIsVisible(true);
+        }
+
+        // Clear the timeout when the component unmounts
+        return () => {
+            clearTimeout(timer);
+        };
+    }, [errorMessage, timeout, isVisible, setErrorMessage]);
+
+    if (!isVisible) {
+        return null;
+    }
+
     return (
         <div
             className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"

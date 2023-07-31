@@ -16,6 +16,7 @@ export const GET_SHORTENED_LINKS = gql`
             privatePass
             clicks
             createdAt
+            name
         }
     }
 `;
@@ -74,14 +75,15 @@ export const DELETE_SINGLE_LINK = gql`
 `
 
 export const UPDATE_LINK = gql`
-    mutation UpdateLink($id: ID!, $isPrivate: Boolean, $privatePass: String) {
+    mutation UpdateLink($id: ID!, $isPrivate: Boolean, $privatePass: String, $name: String) {
         updateShortenedLink(
             where: { id: $id }
-            data: { isPrivate: $isPrivate, privatePass: $privatePass }
+            data: { isPrivate: $isPrivate, privatePass: $privatePass, name: $name }
         ) {
             id
             isPrivate
             privatePass
+            name
         }
     }
 `;
