@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import Header from './Header';
+
 import { useUser } from './User';
-import Footer from './Footer';
-import { user } from '../../tools/lib';
+
 import AccountContainer from './UserHandling/AccountContainer';
 
 function Account() {

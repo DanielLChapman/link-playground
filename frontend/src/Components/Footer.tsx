@@ -1,5 +1,4 @@
 import React from "react";
-import { user } from "../../tools/lib";
 import { useUser } from "./User";
 
 const Footer = () => {

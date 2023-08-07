@@ -12,6 +12,7 @@ export type Session = {
         canManagePeople: boolean;
         canManageRoles: boolean;
         canUseAdminUI: boolean;
+        canManageOthersTrees: boolean;
       };
     };
   };
@@ -33,6 +34,7 @@ export type Session = {
     canManageAllLinks: ({ session }: AccessArgs) => session?.data.role?.canManageAllLinks ?? false,
     canManagePeople: ({ session }: AccessArgs) => session?.data.role?.canManagePeople ?? false,
     canManageRoles: ({ session }: AccessArgs) => session?.data.role?.canManageRoles ?? false,
+    canManageOthersTrees: ({ session }: AccessArgs) => session?.data.role?.canManageOthersTrees ?? false,
     // TODO: add canViewAdminUI
   };
   
@@ -68,5 +70,16 @@ export type Session = {
   
       // default to only updating yourself
       return { id: { equals: session.itemId } };
+    },
+    canManageTree: ({session}: AccessArgs) => {
+      if (!session) return false;
+
+      if (session.data.role?.canManageOthersTrees) return true;
+
+      return {
+        id: {
+          equals: session.itemId
+        }
+      }
     },
   };

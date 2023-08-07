@@ -1,10 +1,10 @@
 import { useQuery } from "@apollo/client";
 import gql from "graphql-tag";
 import React, { useCallback, useEffect, useState } from "react";
-import { user } from "../../tools/lib";
+import { User } from "../../tools/lib";
 
 export type backendtype = {
-    data: user;
+    data: User;
 };
 
 export const CURRENT_USER_QUERY = gql`

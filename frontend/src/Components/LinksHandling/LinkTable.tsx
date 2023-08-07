@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { UserOnlyProps } from "../Header";
 import gql from "graphql-tag";
 import { useMutation, useQuery } from "@apollo/client";
-import { shortenedLinks } from "../../../tools/lib";
 import PrivatePassInput from "./PrivatePassInput";
 import { useDeleteLink } from "../UrlShortener/DeleteSingleLink";
 import SuccessMessaging from "../Tools/SuccessMessaging";
@@ -10,6 +9,7 @@ import { useDeleteSomeLinks } from "../UrlShortener/DeleteAllLinks";
 import { handleCopy } from "../Tools/HandleCopy";
 import { GET_SHORTENED_LINKS, UPDATE_LINK } from "../Tools/Queries";
 import NameInput from "./NameInput";
+import { ShortenedLink } from "../../../tools/lib";
 
 const LinkTable: React.FC<UserOnlyProps> = ({ user }) => {
     if (!user) {
@@ -34,7 +34,7 @@ const LinkTable: React.FC<UserOnlyProps> = ({ user }) => {
         },
     });
 
-    let links = [] as shortenedLinks[];
+    let links = [] as ShortenedLink[];
     if (loading || error) {
         links = [];
     } else {

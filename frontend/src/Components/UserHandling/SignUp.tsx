@@ -1,12 +1,12 @@
 import gql from "graphql-tag";
 import { useMutation } from "@apollo/client";
 import useForm from "../../../tools/useForm";
-import { CURRENT_USER_QUERY } from "../User";
-import { ChangeEvent, FormEvent, FormEventHandler, useState } from "react";
-import { stringifyForDisplay } from "@apollo/client/utilities";
+
+import { ChangeEvent, FormEvent, useState } from "react";
+
 import PasswordChecklist from "react-password-checklist";
 import { capitalize } from "../../../tools/capitalize";
-import Link from "next/link";
+
 
 interface signUp {
     username: string;

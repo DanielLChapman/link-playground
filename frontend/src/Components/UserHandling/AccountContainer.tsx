@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import EditAccountInfo from "./EditAccountInfo";
 import { gql, useMutation } from "@apollo/client";
 import { SIGNIN_MUTATION } from "./SignIn";
-import { user } from "../../../tools/lib";
 import { CURRENT_USER_QUERY } from "../User";
 import DeleteButton from "./DeleteButton";
 import ValidatePassword from "./ValidatePassword";
+import { User } from "../../../tools/lib";
 
 interface EditAccountInfoProps {
-    user: user;
+    user: User;
 }
 
 export interface UserUpdateInput {

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 
-import { user as userType } from "../../tools/lib";
 
 import SignOut from "./UserHandling/SignOut";
+import { User } from "../../tools/lib";
 
 export type UserOnlyProps = {
-    user: userType | null;
+    user: User | null;
 };
 
 const Header: React.FC<UserOnlyProps> = ({ user }) => {

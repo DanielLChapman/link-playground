@@ -4,7 +4,7 @@ import gql from "graphql-tag";
 import { useMutation } from "@apollo/client";
 import useForm from "../../../tools/useForm";
 import { isValidURL } from "../../../tools/urlChecking";
-import { SetShortenedUrlType, shortenedLinks } from "../../../tools/lib";
+import { SetShortenedUrlType, ShortenedLink} from "../../../tools/lib";
 import ErrorMessaging from "../Tools/ErrorMessaging";
 import { CREATE_LINK, GET_SHORTENED_LINKS } from "../Tools/Queries";
 
@@ -13,7 +13,7 @@ type MyComponentProps = {
 };
 
 type LinkQueryData = {
-    shortenedLinks: shortenedLinks[];
+    shortenedLinks: ShortenedLink[];
 };
 
 const UrlShortenerInput: React.FC<UserOnlyProps & MyComponentProps> = ({

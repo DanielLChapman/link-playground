@@ -3,7 +3,7 @@ import { CURRENT_USER_QUERY } from "../User";
 import { gql, useMutation } from "@apollo/client";
 import { SIGNIN_MUTATION } from "./SignIn";
 import { Router, useRouter } from "next/router";
-import { user } from "../../../tools/lib";
+import { User } from "../../../tools/lib";
 
 export const DELETE_USER_MUTATION = gql`
     mutation deleteUser($id: ID!) {
@@ -14,7 +14,7 @@ export const DELETE_USER_MUTATION = gql`
 `;
 
 interface DeleteAccountProps {
-    user: user;
+    user: User;
 }
 
 const DeleteButton: React.FC<DeleteAccountProps> = ({ user}) => {

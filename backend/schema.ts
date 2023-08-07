@@ -75,6 +75,10 @@ export const lists = {
                 ref: "ShortenedLink.owner",
                 many: true,
             }),
+            rootNodes: relationship( {
+                ref: 'TreeNode.owner',
+                many: true,
+            }),
             createdAt: timestamp({
                 // this sets the timestamp to Date.now() when the user is first created
                 defaultValue: { kind: "now" },
@@ -102,7 +106,7 @@ export const lists = {
                 for (const link of links) {
                     await context.db.ShortenedLink.deleteOne({
                         where: {
-                            id: link.id,
+                            id: link.id.toString(),
                         }
                         
                     });
@@ -137,6 +141,10 @@ export const lists = {
                 ref: "User.links",
                 many: false,
             }),
+            treeNode: relationship({
+                ref: 'TreeNode.link',
+                many: true, // if you allow a link to be part of multiple trees/nodes
+            }),
             clicks: integer({
                 defaultValue: 0,
             }),
@@ -145,6 +153,67 @@ export const lists = {
                 defaultValue: { kind: "now" },
             }),
             name: text(),
+        },
+    }),
+    TreeNode: list({
+        access: {
+            operation: {
+                ...allOperations(permissions.canManageOthersTrees),
+            },
+            filter: {
+                update: rules.canManageTree,
+                delete: rules.canManageTree,
+            },
+        },
+        fields: {
+            type: select({
+                options: [
+                    { label: 'Category', value: 'category' },
+                    { label: 'Link', value: 'link' }
+                ],
+                validation: { isRequired: true }
+            }),
+            name: text({ validation: { isRequired: true } }), // Used for category name, and can be used as display text for link nodes if needed.
+            link: relationship({
+                ref: 'ShortenedLink.treeNode',
+                many: false, // Each TreeNode links to at most one ShortenedLink, but a ShortenedLink can be part of multiple TreeNodes (if you allow that).
+            }),
+            owner: relationship({
+                ref: "User.treeNodes",
+                many: false,
+            }),
+            parent: relationship({
+                ref: "TreeNode.children",
+                many: false,
+            }),
+            children: relationship({
+                ref: "TreeNode.parent",
+                many: true,
+            }),
+            order: integer({
+                validation: { isRequired: true },
+                defaultValue: 0,
+            }),
+            createdAt: timestamp({
+                // this sets the timestamp to Date.now() when the user is first created
+                defaultValue: { kind: "now" },
+            }),
+        },
+        hooks: {
+            validateDelete: async ({ context, item, addValidationError }) => {
+                const categories = await context.db.TreeNode.findMany({
+                    where: { childCategories: { id: item.id } },
+                });
+
+                for (const link of categories) {
+                    await context.db.Category.deleteOne({
+                        where: {
+                            id: link.id.toString(),
+                        }
+                        
+                    });
+                }
+            },
         },
     }),
     Role: list({
@@ -197,6 +266,8 @@ export const lists = {
             /* Use AdminUI means:
              - can access the Admin UI next app */
             canUseAdminUI: checkbox({ defaultValue: false }),
+            canManageOthersTrees: checkbox({ defaultValue: false }),
+            canManageTree: checkbox({ defaultValue: false }),
 
             assignedTo: relationship({
                 ref: "User.role",
