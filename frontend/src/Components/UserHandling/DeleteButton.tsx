@@ -44,13 +44,7 @@ const DeleteButton: React.FC<DeleteAccountProps> = ({ user}) => {
     };
 
     if (!user) {
-        return (
-            <a href="/user/signin">
-                <h3 className="text-jet dark:text-snow font-bold text-2xl w-full text-center">
-                    Please Sign In
-                </h3>
-            </a>
-        );
+        return null;
     }
 
     return (
